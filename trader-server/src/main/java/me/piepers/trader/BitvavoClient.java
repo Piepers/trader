@@ -26,7 +26,7 @@ public class BitvavoClient extends AbstractVerticle {
       startFuture.fail("Unable to fetch configuration for Bitvavo.");
     } else {
       LOGGER.debug("Started the bitvavo client.");
-      httpClient.rxWebSocket(this.config.getWsurl())
+//      httpClient.rxWebSocket(this.config.getWsurl())
       startFuture.complete();
     }
   }

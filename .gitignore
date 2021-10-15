@@ -1,6 +1,8 @@
 ### Project specific ###
 non-public-conf.json
 *.log
+.idea
+.idea/*
 
 ### Vert.x ###
 .vertx/
