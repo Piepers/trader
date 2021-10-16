@@ -17,7 +17,7 @@ public class TraderApplication extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     // Set the main configuration for our application to be used.
-
+    LOGGER.debug("Reading configuration...");
     ConfigStoreOptions mainConfigStore = new ConfigStoreOptions()
       .setType("file")
       .setConfig(new JsonObject()
