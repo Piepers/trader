@@ -36,10 +36,12 @@ public class BitvavoClient extends AbstractVerticle {
       httpClient = vertx.createHttpClient(new HttpClientOptions().setMaxWebSocketFrameSize(524288));
       LOGGER.debug("HttpClient created...");
       WebSocketConnectOptions wsc = new WebSocketConnectOptions()
-        .setHost("ws-feed.exchange.coinbase.com")
+//        .setHost("ws-feed.exchange.coinbase.com")
+        .setHost("stream.binance.com")
         .setSsl(true)
-        .setPort(443)
-        .setURI("/");
+//        .setPort(443)
+        .setPort(9443)
+        .setURI("/ws/btcusd@kline_1m");
       httpClient
 //        .rxWebSocket(443, "ws-feed.exchange.coinbase.com", "/")
         .rxWebSocket(wsc)
@@ -80,12 +82,22 @@ public class BitvavoClient extends AbstractVerticle {
     JsonObject subscribeToTickerMessage = new JsonObject()
       .put("action", "subscribe")
       .put("channels", new JsonArray(Arrays.asList(candlesChannel)));
+    String binanceSubscribe = "{\n" +
+      "  \"method\": \"SUBSCRIBE\",\n" +
+      "  \"params\": [\n" +
+      "    \"btcusdt@kline_1m\",\n" +
+      "  ],\n" +
+      "  \"id\": 1\n" +
+      "}";
+    JsonObject subscribeToCandleStick = new JsonObject(binanceSubscribe);
 
-    LOGGER.debug("Sending message\n{}", subscribeToTickerMessage.encodePrettily());
+//    LOGGER.debug("Sending message\n{}", subscribeToTickerMessage.encodePrettily());
+    LOGGER.debug("Sending message\n{}", subscribeToCandleStick.encodePrettily());
+
     this.webSocket
 //      .rxWriteTextMessage(subscribeToTickerMessage
-      .rxWriteTextMessage(coinBaseSub
-        .encode())
+//      .rxWriteTextMessage(coinBaseSub.encode())
+      .rxWriteTextMessage(subscribeToCandleStick.encode())
       .subscribe(() -> LOGGER.debug("Sent message"),
         throwable -> LOGGER.error("Something went wrong when sending message.", throwable));
   }
