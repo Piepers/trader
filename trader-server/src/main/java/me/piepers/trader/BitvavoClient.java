@@ -85,7 +85,7 @@ public class BitvavoClient extends AbstractVerticle {
     String binanceSubscribe = "{\n" +
       "  \"method\": \"SUBSCRIBE\",\n" +
       "  \"params\": [\n" +
-      "    \"btcusdt@kline_1m\",\n" +
+      "    \"btcusdt@kline_1m\"\n" +
       "  ],\n" +
       "  \"id\": 1\n" +
       "}";
@@ -133,6 +133,4 @@ public class BitvavoClient extends AbstractVerticle {
   private void handle(Buffer buffer) {
     LOGGER.debug("Received {}", buffer.toString());
   }
-
-
 }
