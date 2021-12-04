@@ -1,4 +1,4 @@
-package me.piepers.trader;
+package me.piepers.trader.client.bitvavo;
 
 import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;

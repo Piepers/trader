@@ -1,5 +1,10 @@
 {
   "http_server": {
     "port": 8080
+  },
+  "binance-public-config": {
+    "host": "stream.binance.com",
+    "port": 9443,
+    "uri":"/ws/btcusd@kline_1m"
   }
 }

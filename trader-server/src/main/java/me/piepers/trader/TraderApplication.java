@@ -8,6 +8,9 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava3.config.ConfigRetriever;
 import io.vertx.rxjava3.core.AbstractVerticle;
+import me.piepers.trader.client.binance.BinanceClient;
+import me.piepers.trader.client.bitvavo.BitvavoClient;
+import me.piepers.trader.http.HttpServerVerticle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +40,10 @@ public class TraderApplication extends AbstractVerticle {
     configRetriever
       .rxGetConfig()
       .flatMapCompletable(configuration -> Completable.fromAction(() -> LOGGER.info("Deploying application components"))
-        .andThen(this.deployWithConfigAndName(BitvavoClient.class.getName(), configuration)))
+        .andThen(this.deployWithConfigAndName(BitvavoClient.class.getName(), configuration))
+        .andThen(this.deployWithConfigAndName(BinanceClient.class.getName(), configuration))
+        .andThen(this.deployWithConfigAndName(HttpServerVerticle.class.getName(), configuration)))
+
       .doOnComplete(() -> LOGGER.info("Application deployed successfully."))
       .subscribe(() -> startPromise.complete(),
         throwable -> startPromise.fail(throwable));
@@ -45,6 +51,8 @@ public class TraderApplication extends AbstractVerticle {
   }
 
   private Completable deployWithConfigAndName(String name, JsonObject config) {
-    return this.vertx.rxDeployVerticle(name, new DeploymentOptions().setConfig(config)).ignoreElement();
+    return this.vertx.rxDeployVerticle(name, new DeploymentOptions()
+        .setConfig(config))
+      .ignoreElement();
   }
 }
