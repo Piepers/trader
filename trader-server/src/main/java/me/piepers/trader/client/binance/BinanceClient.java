@@ -1,6 +1,7 @@
 package me.piepers.trader.client.binance;
 
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.Context;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class BinanceClient extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(BinanceClient.class);
@@ -24,6 +26,7 @@ public class BinanceClient extends AbstractVerticle {
 
   HttpClient httpClient;
   WebSocket webSocket;
+  WebSocketConnectOptions webSocketConnectOptions;
 
   @Override
   public void init(Vertx vertx, Context context) {
@@ -46,48 +49,73 @@ public class BinanceClient extends AbstractVerticle {
       .getJsonObject("binance-public-config");
 
     LOGGER.debug("Binance wsurl: {}", config.getString("uri"));
-    if (Objects.isNull(config)) {
-      startFuture.fail("Unable to fetch configuration for Binance.");
+    LOGGER.debug("Started the Binance client.");
+    httpClient = vertx.createHttpClient(new HttpClientOptions()
+      .setMaxWebSocketFrameSize(524288)
+      // Reueses connection (keeps a pool of connections) which also takes care of cleaning up etc.
+      .setKeepAlive(true));
+    LOGGER.debug("HttpClient for Binance created...");
+    String host = config.getString("host");
+    String uri = config.getString("uri");
+    Integer port = config.getInteger("port");
+
+    this.webSocketConnectOptions = new WebSocketConnectOptions()
+      .setHost(host)
+      .setSsl(true)
+      .setPort(port)
+      .setURI(uri);
+
+    httpClient
+      .rxWebSocket(webSocketConnectOptions)
+      .concatMap(this::initWebsocket)
+      .ignoreElement()
+      .subscribe(startFuture::complete,
+        startFuture::fail);
+  }
+
+  @Override
+  public Completable rxStop() {
+    if (Objects.nonNull(this.httpClient)) {
+      return this.httpClient
+        .rxClose();
     } else {
-      LOGGER.debug("Started the Binance client.");
-      httpClient = vertx.createHttpClient(new HttpClientOptions().setMaxWebSocketFrameSize(524288));
-      LOGGER.debug("HttpClient for Binance created...");
-      String host = config.getString("host");
-      String uri = config.getString("uri");
-      Integer port = config.getInteger("port");
-
-      WebSocketConnectOptions wsc = new WebSocketConnectOptions()
-        .setHost(host)
-        .setSsl(true)
-        .setPort(port)
-        .setURI(uri);
-
-      httpClient
-        .rxWebSocket(wsc)
-        .doOnSuccess(s -> startFuture.complete())
-        .subscribe(websocket -> this.initWebsocket(websocket),
-          throwable -> startFuture.fail(throwable));
+      return Completable
+        .complete();
     }
   }
 
   private Completable trySendSubscription() {
     LOGGER.debug("Trying to subscribe to ticker...");
-    BinanceWsRequest request = new BinanceWsRequest(WsMethod.SUBSCRIBE, "btcusdt@kline_1m");
+    BinanceWsRequest request = new BinanceWsRequest(1, WsMethod.SUBSCRIBE, "btcusdt@kline_1m");
     LOGGER.debug("Sending message\n{}", request.toJson().encode());
-
-    return this.webSocket
-      .rxWriteTextMessage(request.toJson().encode());
+    return this.trySendRequest(request);
   }
 
   private Completable trySendUnsubscribe() {
     LOGGER.debug("Trying to unsubscribe from ticker...");
-    BinanceWsRequest request = new BinanceWsRequest(WsMethod.UNSUBSCRIBE, "btcusdt@kline_1m");
+    BinanceWsRequest request = new BinanceWsRequest(1, WsMethod.UNSUBSCRIBE, "btcusdt@kline_1m");
     LOGGER.debug("Sending message\n{}", request.toJson().encode());
-    return this.webSocket
-      .rxWriteTextMessage(request.toJson().encode());
+    return this.trySendRequest(request);
   }
 
-  private void initWebsocket(WebSocket websocket) {
+  private Completable trySendRequest(BinanceWsRequest request) {
+    if (this.webSocket.isClosed()) {
+      LOGGER.debug("Websocket is closed while trying to send request, creating new.");
+      return httpClient
+        .rxWebSocket(webSocketConnectOptions)
+        .doOnSuccess(ws -> LOGGER.debug("Now, the websocket should be present, not closed."))
+        .concatMap(this::initWebsocket)
+        .concatMapCompletable(ws -> ws.rxWriteTextMessage(request.toJson().encode()));
+    } else {
+      LOGGER.debug("Sending request to websocket connection. Close: {}.", this.webSocket.isClosed() ? "Yes" : "No");
+      return this.webSocket
+        .rxWriteTextMessage(request.toJson().encode());
+    }
+  }
+
+  private Single<WebSocket> initWebsocket(WebSocket websocket) {
+
+    LOGGER.debug("Initialising websocket.");
     this.webSocket = websocket;
 
     this.webSocket
@@ -95,6 +123,8 @@ public class BinanceClient extends AbstractVerticle {
       .endHandler(this::end)
       .closeHandler(this::close)
       .exceptionHandler(this::handleException);
+
+    return Single.just(this.webSocket);
   }
 
   private void handleException(Throwable throwable) {
@@ -104,10 +134,6 @@ public class BinanceClient extends AbstractVerticle {
 
   private void close(Void unused) {
     LOGGER.debug("Close handler called.");
-    this.httpClient
-      .rxClose()
-      .subscribe(() -> LOGGER.debug("Httpclient close called."),
-        throwable -> LOGGER.error("Could not close HttpClient", throwable));
   }
 
   private void end(Void unused) {
@@ -128,6 +154,7 @@ public class BinanceClient extends AbstractVerticle {
 
   private void handleSubscribeMessage(Message<JsonObject> message) {
     this.trySendSubscription()
+      .doOnError(throwable -> LOGGER.error("Error while sending subscribe.", throwable))
       .subscribe(() -> message
           .reply(new JsonObject().put("result", "ok")),
         throwable -> message

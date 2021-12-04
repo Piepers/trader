@@ -12,16 +12,19 @@ import java.util.stream.Collectors;
 @Getter
 @DataObject
 public class BinanceWsRequest implements Jsonable {
+  private int id;
   private WsMethod method;
   private JsonArray params;
 
   public BinanceWsRequest(JsonObject jsonObject) {
+    this.id = jsonObject.getInteger("id");
     this.method = WsMethod.resolve(jsonObject.getString("method"));
     this.params = jsonObject
       .getJsonArray("params");
   }
 
-  public BinanceWsRequest(WsMethod method, String... params) {
+  public BinanceWsRequest(int id, WsMethod method, String... params) {
+    this.id = id;
     this.method = method;
     this.params = new JsonArray(Arrays
       .stream(params)
