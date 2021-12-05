@@ -52,6 +52,11 @@
       <artifactId>vertx-reactive-streams</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.binance.api</groupId>
+      <artifactId>binance-api-client</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.2.6</version>
