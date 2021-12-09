@@ -15,8 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import static me.piepers.trader.client.binance.BinanceClient.BINANCE_CLIENT_SUBSCRIBE_ADDRESS;
-import static me.piepers.trader.client.binance.BinanceClient.BINANCE_CLIENT_UNSUBSCRIBE_ADDRESS;
+import static me.piepers.trader.client.binance.BinanceClient.*;
 
 /**
  * Primarily to enable a user interface but also offers the ability to react on certain webhooks from
@@ -44,6 +43,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     subRouter.route(HttpMethod.POST, "/tv").handler(this::handleTvWebHook);
     subRouter.route(HttpMethod.PUT, "/subscribe").handler(this::handleSubscribeToWs);
     subRouter.route(HttpMethod.PUT, "/unsubscribe").handler(this::handleUnSubscribeToWs);
+    subRouter.route(HttpMethod.GET, "/account").handler(this::handleGetAccount);
     router.mountSubRouter("/api", subRouter);
 
     // Start the Http Server
@@ -58,6 +58,21 @@ public class HttpServerVerticle extends AbstractVerticle {
         LOGGER.error("Http server start failed.");
         promise.fail(throwable);
       });
+  }
+
+  private void handleGetAccount(RoutingContext routingContext) {
+    vertx.eventBus()
+      .<JsonObject>rxRequest(BINANCE_CLIENT_GET_ACCOUNT_DATA, new JsonObject())
+      .subscribe(message -> routingContext
+          .response()
+          .putHeader(CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE)
+          .end(message.body().encode()),
+        throwable -> routingContext
+          .response()
+          .putHeader(CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE)
+          .setStatusCode(500)
+          .setStatusMessage(throwable.getMessage())
+          .end(new JsonObject().put("error", throwable.getMessage()).encode()));
   }
 
   private void handleUnSubscribeToWs(RoutingContext routingContext) {

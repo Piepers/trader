@@ -1,5 +1,6 @@
 package me.piepers.trader.client.binance;
 
+import com.binance.api.client.BinanceApiAsyncRestClient;
 import com.binance.api.client.BinanceApiClientFactory;
 import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.event.AggTradeEvent;
@@ -21,9 +22,11 @@ public class BinanceClient extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(BinanceClient.class);
   public static final String BINANCE_CLIENT_SUBSCRIBE_ADDRESS = "binanceclient.subscribe";
   public static final String BINANCE_CLIENT_UNSUBSCRIBE_ADDRESS = "binanceclient.unsubscribe";
+  public static final String BINANCE_CLIENT_GET_ACCOUNT_DATA = "binanceclient.getAccount";
 
   BinanceApiWebSocketClient bwsClient;
   Closeable ws;
+  BinanceApiAsyncRestClient asyncRestClient;
 
   @Override
   public void init(Vertx vertx, Context context) {
@@ -36,6 +39,10 @@ public class BinanceClient extends AbstractVerticle {
     vertx
       .eventBus()
       .<JsonObject>consumer(BINANCE_CLIENT_UNSUBSCRIBE_ADDRESS, this::handleUnsubscribeMessage);
+
+    vertx
+      .eventBus()
+      .<JsonObject>consumer(BINANCE_CLIENT_GET_ACCOUNT_DATA, this::handleGetAccountBalances);
 
   }
 
@@ -50,11 +57,11 @@ public class BinanceClient extends AbstractVerticle {
       .getOrCreateContext()
       .config()
       .getJsonObject("binance-api-client");
-
-    this.bwsClient = BinanceApiClientFactory
-      // FIXME: should be stored somewhere normal users don't have access. Possibly encrypted.
-      .newInstance(binanceNonPublicConfig.getString("api-key"), binanceNonPublicConfig.getString("secret"))
+    BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance(binanceNonPublicConfig.getString("api-key"), binanceNonPublicConfig.getString("secret"));
+    this.bwsClient = factory
       .newWebSocketClient();
+
+    this.asyncRestClient = factory.newAsyncRestClient();
 
     LOGGER.debug("Binance wsurl: {}", binancePublicConfig.getString("uri"));
     LOGGER.debug("Started the Binance client.");
@@ -97,6 +104,18 @@ public class BinanceClient extends AbstractVerticle {
   private void handleSubscribeMessage(Message<JsonObject> message) {
     this.trySendSubscription();
     message.reply(new JsonObject().put("result", "ok"));
+  }
+
+  private void handleGetAccountBalances(Message<JsonObject> message) {
+    LOGGER.debug("Retrieving account information");
+
+    asyncRestClient.getAccount(response -> {
+      LOGGER.debug("Received account information: {}", response);
+      message
+        .reply(BinanceAccount
+          .with(response)
+          .toJson());
+    });
   }
 
   @Override
