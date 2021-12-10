@@ -6,5 +6,11 @@
     "host": "stream.binance.com",
     "port": 9443,
     "uri":"/ws/btcusd@kline_1m"
+  },
+  "bitvavo-public-config": {
+    "resturl": "https://api.bitvavo.com/v2",
+    "wsurl": "wss://ws.bitvavo.com/v2/",
+    "accesswindow": 10000,
+    "debugging": false
   }
 }

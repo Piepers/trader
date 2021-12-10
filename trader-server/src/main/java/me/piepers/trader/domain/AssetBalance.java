@@ -5,6 +5,7 @@ import io.vertx.core.json.JsonObject;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.json.JSONObject;
 
 /**
  * Represents how much is available in the account's wallet for a given asset.
@@ -25,6 +26,10 @@ public class AssetBalance implements Jsonable {
 
   public static AssetBalance with(com.binance.api.client.domain.account.AssetBalance assetBalance) {
     return new AssetBalance(assetBalance.getAsset(), assetBalance.getFree(), assetBalance.getLocked());
+  }
+
+  public static AssetBalance with(JSONObject bitvavoAsset){
+    return new AssetBalance(bitvavoAsset.getString("symbol"), bitvavoAsset.getString("available"), bitvavoAsset.getString("inOrder"));
   }
 
 }

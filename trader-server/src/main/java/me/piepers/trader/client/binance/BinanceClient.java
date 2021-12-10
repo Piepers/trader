@@ -49,15 +49,13 @@ public class BinanceClient extends AbstractVerticle {
 
   @Override
   public void start(Promise<Void> startFuture) {
-    JsonObject binancePublicConfig = this.vertx
-      .getOrCreateContext()
-      .config()
+    JsonObject config = this.vertx.getOrCreateContext().config();
+    JsonObject binancePublicConfig = config
       .getJsonObject("binance-public-config");
 
-    JsonObject binanceNonPublicConfig = this.vertx
-      .getOrCreateContext()
-      .config()
+    JsonObject binanceNonPublicConfig = config
       .getJsonObject("binance-api-client");
+
     BinanceApiClientFactory factory = BinanceApiClientFactory
       .newInstance(binanceNonPublicConfig.getString("api-key"), binanceNonPublicConfig.getString("secret"));
 
@@ -109,10 +107,7 @@ public class BinanceClient extends AbstractVerticle {
   }
 
   private void handleGetAccountBalances(Message<JsonObject> message) {
-    LOGGER.debug("Retrieving account information");
-
     asyncRestClient.getAccount(response -> {
-      LOGGER.debug("Received account information: {}", response);
       message
         .reply(Account
           .with(response)

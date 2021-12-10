@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import static me.piepers.trader.client.binance.BinanceClient.*;
+import static me.piepers.trader.client.bitvavo.BitvavoClient.BITVAVO_CLIENT_GET_ACCOUNT_ASSETS;
 
 /**
  * Primarily to enable a user interface but also offers the ability to react on certain webhooks from
@@ -43,7 +44,9 @@ public class HttpServerVerticle extends AbstractVerticle {
     subRouter.route(HttpMethod.POST, "/tv").handler(this::handleTvWebHook);
     subRouter.route(HttpMethod.PUT, "/subscribe").handler(this::handleSubscribeToWs);
     subRouter.route(HttpMethod.PUT, "/unsubscribe").handler(this::handleUnSubscribeToWs);
-    subRouter.route(HttpMethod.GET, "/account").handler(this::handleGetAccount);
+    subRouter.route(HttpMethod.GET, "/account/binance").handler(routingContext -> this.handleGetAccount(routingContext, BINANCE_CLIENT_GET_ACCOUNT_DATA));
+    subRouter.route(HttpMethod.GET, "/account/bitvavo").handler(routingContext -> this.handleGetAccount(routingContext, BITVAVO_CLIENT_GET_ACCOUNT_ASSETS));
+
     router.mountSubRouter("/api", subRouter);
 
     // Start the Http Server
@@ -60,9 +63,9 @@ public class HttpServerVerticle extends AbstractVerticle {
       });
   }
 
-  private void handleGetAccount(RoutingContext routingContext) {
+  private void handleGetAccount(RoutingContext routingContext, String accountAddress) {
     vertx.eventBus()
-      .<JsonObject>rxRequest(BINANCE_CLIENT_GET_ACCOUNT_DATA, new JsonObject())
+      .<JsonObject>rxRequest(accountAddress, new JsonObject())
       .subscribe(message -> routingContext
           .response()
           .putHeader(CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE)
