@@ -11,6 +11,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava3.core.AbstractVerticle;
+import me.piepers.trader.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,9 +58,10 @@ public class BinanceClient extends AbstractVerticle {
       .getOrCreateContext()
       .config()
       .getJsonObject("binance-api-client");
-    BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance(binanceNonPublicConfig.getString("api-key"), binanceNonPublicConfig.getString("secret"));
-    this.bwsClient = factory
-      .newWebSocketClient();
+    BinanceApiClientFactory factory = BinanceApiClientFactory
+      .newInstance(binanceNonPublicConfig.getString("api-key"), binanceNonPublicConfig.getString("secret"));
+
+    this.bwsClient = factory.newWebSocketClient();
 
     this.asyncRestClient = factory.newAsyncRestClient();
 
@@ -73,7 +75,7 @@ public class BinanceClient extends AbstractVerticle {
       LOGGER.debug("Subscribing");
       ws = bwsClient.onAggTradeEvent("etcbtc", this::handleAggTradeEvent);
     } else {
-      LOGGER.warn("Already subsribed.");
+      LOGGER.warn("Already subscribed.");
     }
   }
 
@@ -112,7 +114,7 @@ public class BinanceClient extends AbstractVerticle {
     asyncRestClient.getAccount(response -> {
       LOGGER.debug("Received account information: {}", response);
       message
-        .reply(BinanceAccount
+        .reply(Account
           .with(response)
           .toJson());
     });
