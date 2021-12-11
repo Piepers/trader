@@ -17,6 +17,7 @@ import java.util.Objects;
 
 import static me.piepers.trader.client.binance.BinanceClient.*;
 import static me.piepers.trader.client.bitvavo.BitvavoClient.BITVAVO_CLIENT_GET_ACCOUNT_ASSETS;
+import static me.piepers.trader.client.coinbase.CoinbaseProClient.COINBASE_CLIENT_GET_ACCOUNT_DATA;
 
 /**
  * Primarily to enable a user interface but also offers the ability to react on certain webhooks from
@@ -46,6 +47,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     subRouter.route(HttpMethod.PUT, "/unsubscribe").handler(this::handleUnSubscribeToWs);
     subRouter.route(HttpMethod.GET, "/account/binance").handler(routingContext -> this.handleGetAccount(routingContext, BINANCE_CLIENT_GET_ACCOUNT_DATA));
     subRouter.route(HttpMethod.GET, "/account/bitvavo").handler(routingContext -> this.handleGetAccount(routingContext, BITVAVO_CLIENT_GET_ACCOUNT_ASSETS));
+    subRouter.route(HttpMethod.GET, "/account/coinbase").handler(routingContext -> this.handleGetAccount(routingContext, COINBASE_CLIENT_GET_ACCOUNT_DATA));
 
     router.mountSubRouter("/api", subRouter);
 

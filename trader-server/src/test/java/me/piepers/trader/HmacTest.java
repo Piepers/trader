@@ -1,6 +1,5 @@
 package me.piepers.trader;
 
-import io.netty.handler.codec.base64.Base64Encoder;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.Mac;
@@ -8,7 +7,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 
 public class HmacTest {
   private static final String HMAC_SHA256 = "HmacSHA256";

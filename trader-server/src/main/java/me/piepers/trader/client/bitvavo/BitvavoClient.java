@@ -39,7 +39,7 @@ public class BitvavoClient extends AbstractVerticle {
       "WSURL: '" + bitvavoPublicConfig.getString("wsurl") + "'," +
       "ACCESSWINDOW:" + bitvavoPublicConfig.getInteger("accesswindow") + ", " +
       "DEBUGGING: " + bitvavoPublicConfig.getBoolean("debugging", false).toString() + " }"));
-
+    LOGGER.debug("Started the Bitvavo client.");
     startFuture.complete();
   }
 

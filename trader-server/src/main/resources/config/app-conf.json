@@ -4,13 +4,16 @@
   },
   "binance-public-config": {
     "host": "stream.binance.com",
-    "port": 9443,
-    "uri":"/ws/btcusd@kline_1m"
+    "port": 9443
   },
   "bitvavo-public-config": {
     "resturl": "https://api.bitvavo.com/v2",
     "wsurl": "wss://ws.bitvavo.com/v2/",
     "accesswindow": 10000,
     "debugging": false
+  },
+  "coinbase-pro-public-config": {
+    "host": "api.coinbase.com",
+    "uri": "/v2"
   }
 }

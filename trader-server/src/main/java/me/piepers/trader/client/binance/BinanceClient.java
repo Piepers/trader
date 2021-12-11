@@ -107,19 +107,15 @@ public class BinanceClient extends AbstractVerticle {
   }
 
   private void handleGetAccountBalances(Message<JsonObject> message) {
-    asyncRestClient.getAccount(response -> {
-      message
-        .reply(Account
-          .with(response)
-          .toJson());
-    });
+    asyncRestClient.getAccount(response -> message
+      .reply(Account
+        .with(response)
+        .toJson()));
   }
 
   @Override
   public Completable rxStop() {
     return Completable
-      .fromAction(() -> {
-        this.tryCloseWebsocket();
-      });
+      .fromAction(this::tryCloseWebsocket);
   }
 }
