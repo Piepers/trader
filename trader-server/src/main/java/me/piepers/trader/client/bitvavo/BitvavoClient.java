@@ -57,7 +57,6 @@ public class BitvavoClient extends AbstractVerticle {
 //    Observable.fromIterable(bitvavo.balance(new JSONObject())).map()
     LOGGER.debug("Requesting balance from Bitvavo");
     JSONArray balanceResult = bitvavo.balance(new JSONObject());
-    LOGGER.debug("Retrieved: {}", balanceResult.toString());
     Account account = Account.with(balanceResult);
     jsonObjectMessage.reply(account.toJson());
 //     Observable

@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.rxjava3.core.AbstractVerticle;
 import io.vertx.rxjava3.ext.web.client.WebClient;
+import me.piepers.trader.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +18,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Objects;
 
 /**
  * Coinbase Pro Client. Coinbase doesn't provide an official Java API so we have to implement our calls including
  * signing and calculating security aspects ourselves.
+ * <p>
+ * See this documentation for reference: https://docs.cloud.coinbase.com/exchange/reference/
  */
 public class CoinbaseProClient extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(CoinbaseProClient.class);
@@ -29,15 +33,16 @@ public class CoinbaseProClient extends AbstractVerticle {
   public static final String COINBASE_CLIENT_GET_ACCOUNT_DATA = "coinbase.getAccount";
   private static final String CONTENT_TYPE_HEADER_NAME = "Content-Type";
   private static final String CONTENT_TYPE_HEADER_VALUE = "application/json";
-  private static final String CB_ACCESS_KEY_HEADER_NAME = "CB-ACCESS-KEY";
-  private static final String CB_ACCESS_SIGN_HEADER_NAME = "CB-ACCESS-SIGN";
-  private static final String CB_ACCESS_TIMESTAMP_HEADER_NAME = "CB-ACCESS-TIMESTAMP";
+  private static final String CB_ACCESS_KEY_HEADER_NAME = "cb-access-key";
+  private static final String CB_ACCESS_PASSPHRASE_NAME = "cb-access-passphrase";
+  private static final String CB_ACCESS_SIGN_HEADER_NAME = "cb-access-sign";
+  private static final String CB_ACCESS_TIMESTAMP_HEADER_NAME = "cb-access-timestamp";
 
   private WebClient webClient;
   private String host;
-  private String uri;
   private String apiKey;
   private String secret;
+  private String passphrase;
 
   @Override
   public void init(Vertx vertx, Context context) {
@@ -53,7 +58,8 @@ public class CoinbaseProClient extends AbstractVerticle {
     JsonObject coinbaseNonPublicConfig = config.getJsonObject("coinbase-pro-api-client");
     this.apiKey = coinbaseNonPublicConfig.getString("api-key", null);
     this.secret = coinbaseNonPublicConfig.getString("secret", null);
-    if (Objects.isNull(this.apiKey) || Objects.isNull(this.secret)) {
+    this.passphrase = coinbaseNonPublicConfig.getString("passphrase", null);
+    if (Objects.isNull(this.apiKey) || Objects.isNull(this.secret) || Objects.isNull(passphrase)) {
       startFuture.fail("Could not retrieve api key or secret while starting the Coinbase Pro API Client");
     } else {
       this.webClient = WebClient
@@ -61,7 +67,6 @@ public class CoinbaseProClient extends AbstractVerticle {
           .setMaxPoolSize(2));
 
       this.host = coinbasePublicConfig.getString("host");
-      this.uri = coinbasePublicConfig.getString("uri");
       startFuture.complete();
     }
 
@@ -69,33 +74,33 @@ public class CoinbaseProClient extends AbstractVerticle {
 
   private void handleGetAccountData(Message<JsonObject> jsonObjectMessage) {
     long timestamp = Instant.now().getEpochSecond();
-    String uri = this.uri + "/accounts";
-    String preSign = timestamp + "GET" +"accounts";
-    LOGGER.debug("Generating signature with: {}", preSign);
+    String uri = "/accounts";
+    String preSign = timestamp + "GET" + uri;
     Mac sha256Hmac;
     String result;
     try {
-//      final byte[] byteKey = apiKey.getBytes(StandardCharsets.UTF_8);
-      final byte[] byteKey = secret.getBytes(StandardCharsets.UTF_8);
+      final byte[] byteKey = Base64.getDecoder().decode(secret);
       sha256Hmac = Mac.getInstance(HMAC_SHA256);
       SecretKeySpec keySpec = new SecretKeySpec(byteKey, HMAC_SHA256);
       sha256Hmac.init(keySpec);
       byte[] macData = sha256Hmac.doFinal(preSign.getBytes(StandardCharsets.UTF_8));
 
-//      result = Base64.getEncoder().encodeToString(macData);
-//      result = new String(macData, StandardCharsets.UTF_8);
+      result = Base64.getEncoder().encodeToString(macData);
 
-      result = bytesToHex(macData);
-
-      webClient.get(this.host, uri)
+      webClient
+        .get(this.host, uri)
+        .port(443)
+        .ssl(true)
         .putHeader(CONTENT_TYPE_HEADER_NAME, CONTENT_TYPE_HEADER_VALUE)
         .putHeader(CB_ACCESS_KEY_HEADER_NAME, this.apiKey)
         .putHeader(CB_ACCESS_SIGN_HEADER_NAME, result)
         .putHeader(CB_ACCESS_TIMESTAMP_HEADER_NAME, String.valueOf(timestamp))
+        .putHeader(CB_ACCESS_PASSPHRASE_NAME, passphrase)
+        .putHeader("Accept", "application/json")
         .rxSend()
         .doOnError(throwable -> LOGGER.error("Failure while fetching account data from Coinbase Pro API", throwable))
-        .doOnSuccess(response -> LOGGER.debug("Successfully retrieved account information: {}", response.bodyAsJsonObject().encodePrettily()))
-        .subscribe(response -> jsonObjectMessage.reply(response.bodyAsJsonObject()),
+        .map(response -> Account.with(response.bodyAsJsonArray()).toJson())
+        .subscribe(jsonObjectMessage::reply,
           throwable -> jsonObjectMessage.fail(500, "Could not receive response: " + throwable.getMessage()));
 
     } catch (NoSuchAlgorithmException | InvalidKeyException e) {

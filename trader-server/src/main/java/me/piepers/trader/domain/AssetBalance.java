@@ -32,4 +32,7 @@ public class AssetBalance implements Jsonable {
     return new AssetBalance(bitvavoAsset.getString("symbol"), bitvavoAsset.getString("available"), bitvavoAsset.getString("inOrder"));
   }
 
+  public static AssetBalance with(JsonObject coinBaseAccountAsset){
+    return new AssetBalance(coinBaseAccountAsset.getString("currency"), coinBaseAccountAsset.getString("available"),coinBaseAccountAsset.getString("hold"));
+  }
 }

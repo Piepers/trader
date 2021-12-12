@@ -13,7 +13,6 @@
     "debugging": false
   },
   "coinbase-pro-public-config": {
-    "host": "api.coinbase.com",
-    "uri": "/v2"
+    "host": "api.exchange.coinbase.com"
   }
 }

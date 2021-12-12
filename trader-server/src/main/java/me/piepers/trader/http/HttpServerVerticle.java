@@ -68,6 +68,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   private void handleGetAccount(RoutingContext routingContext, String accountAddress) {
     vertx.eventBus()
       .<JsonObject>rxRequest(accountAddress, new JsonObject())
+      .doOnError(throwable -> LOGGER.error("Could not retrieve account data.", throwable))
       .subscribe(message -> routingContext
           .response()
           .putHeader(CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE)
