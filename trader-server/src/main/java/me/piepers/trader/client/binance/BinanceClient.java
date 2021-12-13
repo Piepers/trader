@@ -1,6 +1,7 @@
 package me.piepers.trader.client.binance;
 
 import com.binance.api.client.BinanceApiAsyncRestClient;
+import com.binance.api.client.BinanceApiCallback;
 import com.binance.api.client.BinanceApiClientFactory;
 import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.event.AggTradeEvent;
@@ -63,7 +64,6 @@ public class BinanceClient extends AbstractVerticle {
 
     this.asyncRestClient = factory.newAsyncRestClient();
 
-    LOGGER.debug("Binance wsurl: {}", binancePublicConfig.getString("uri"));
     LOGGER.debug("Started the Binance client.");
     startFuture.complete();
   }
@@ -106,11 +106,26 @@ public class BinanceClient extends AbstractVerticle {
     message.reply(new JsonObject().put("result", "ok"));
   }
 
+  /**
+   * Note that the asyncRestClient facility doesn't implement the onFailure itself. We must do that here explicitly
+   * otherwise we won't get any feedback in case something fails.
+   *
+   * @param message, the message this message handles. Wille reply in case ok otherwise fail.
+   */
   private void handleGetAccountBalances(Message<JsonObject> message) {
-    asyncRestClient.getAccount(response -> message
-      .reply(Account
-        .with(response)
-        .toJson()));
+
+    asyncRestClient.getAccount(new BinanceApiCallback<>() {
+      @Override
+      public void onResponse(com.binance.api.client.domain.account.Account account) {
+        message.reply(Account.with(account).toJson());
+      }
+
+      @Override
+      public void onFailure(Throwable cause) {
+        message.fail(500,
+          "Something went wrong while calling the Binance REST API: " + cause.getMessage());
+      }
+    });
   }
 
   @Override
