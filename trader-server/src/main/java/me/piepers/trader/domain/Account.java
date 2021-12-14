@@ -68,18 +68,6 @@ public class Account implements Jsonable {
         .equals(NOTHING_SMALLER));
   }
 
-  public static Account with(JSONArray bitvavoBalanceResult) {
-    List<AssetBalance> assetBalances = new ArrayList<>();
-    // FIXME: use Observable
-    for (int i = 0; i < bitvavoBalanceResult.length(); i++) {
-      AssetBalance ab = AssetBalance.with(bitvavoBalanceResult.getJSONObject(i));
-      assetBalances.add(ab);
-    }
-
-    // FIXME: translate parameters to something we can use here.
-    return new Account(Exchange.with("Bitvavo"), true, true, true, assetBalances);
-  }
-
   public static Account with(JsonArray coinbaseAccountResult) {
     List<AssetBalance> assetBalances = coinbaseAccountResult
       .stream()
@@ -88,5 +76,9 @@ public class Account implements Jsonable {
       .map(value -> AssetBalance.with((JsonObject) value))
       .collect(Collectors.toList());
     return new Account(Exchange.with("Coinbase Pro"), true, true, true, assetBalances);
+  }
+
+  public static Account fromBitvavo(ArrayList<AssetBalance> abs) {
+    return new Account(Exchange.with("Bitvavo"), true, true, true, abs);
   }
 }

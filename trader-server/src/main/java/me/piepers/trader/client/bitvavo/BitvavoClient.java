@@ -2,20 +2,20 @@ package me.piepers.trader.client.bitvavo;
 
 import com.bitvavo.api.Bitvavo;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Supplier;
 import io.vertx.core.Context;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava3.core.AbstractVerticle;
-import io.vertx.rxjava3.core.http.HttpClient;
-import io.vertx.rxjava3.core.http.WebSocket;
 import me.piepers.trader.domain.Account;
-import org.json.JSONArray;
+import me.piepers.trader.domain.AssetBalance;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 /**
  * Test client for BitVavo.
@@ -54,16 +54,14 @@ public class BitvavoClient extends AbstractVerticle {
   }
 
   private void handleGetAccountAssets(Message<JsonObject> jsonObjectMessage) {
-//    Observable.fromIterable(bitvavo.balance(new JSONObject())).map()
     LOGGER.debug("Requesting balance from Bitvavo");
-    JSONArray balanceResult = bitvavo.balance(new JSONObject());
-    Account account = Account.with(balanceResult);
-    jsonObjectMessage.reply(account.toJson());
-//     Observable
-//      .just(bitvavo.balance(new JSONObject()))
-//      .map(jsonarray -> Single.just(Account.with((JSONArray)jsonarray))
-//        .doOnSuccess(account -> LOGGER.debug("Retrieved account information"))
-//      .subscribe(jsonObjectMessage::reply,
-//        throwable -> jsonObjectMessage.fail(500, "Something went wrong getting assets from Bitvavo.")));
+    Observable
+      .fromIterable(bitvavo.balance(new JSONObject()))
+      .map(o -> (JSONObject)o)
+      .map(AssetBalance::with)
+      .collect((Supplier<ArrayList<AssetBalance>>) ArrayList::new, ArrayList::add)
+      .map(Account::fromBitvavo)
+      .subscribe(account -> jsonObjectMessage.reply(account.toJson()),
+        throwable -> jsonObjectMessage.fail(500, "Something went wrong getting the account information from Bitvavo."));
   }
 }
