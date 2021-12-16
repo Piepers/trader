@@ -9,6 +9,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava3.core.AbstractVerticle;
 import io.vertx.rxjava3.ext.web.Router;
 import io.vertx.rxjava3.ext.web.RoutingContext;
+import io.vertx.rxjava3.ext.web.handler.BodyHandler;
+import me.piepers.trader.client.binance.BinanceOrderRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   @Override
   public void start(Promise promise) {
     Router router = Router.router(vertx);
+    router.route().handler(BodyHandler.create());
     Router subRouter = Router.router(vertx);
     subRouter.route(HttpMethod.POST, "/tv").handler(this::handleTvWebHook);
     subRouter.route(HttpMethod.PUT, "/subscribe").handler(this::handleSubscribeToWs);
@@ -48,6 +51,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     subRouter.route(HttpMethod.GET, "/account/binance").handler(routingContext -> this.handleGetAccount(routingContext, BINANCE_CLIENT_GET_ACCOUNT_DATA));
     subRouter.route(HttpMethod.GET, "/account/bitvavo").handler(routingContext -> this.handleGetAccount(routingContext, BITVAVO_CLIENT_GET_ACCOUNT_ASSETS));
     subRouter.route(HttpMethod.GET, "/account/coinbase").handler(routingContext -> this.handleGetAccount(routingContext, COINBASE_CLIENT_GET_ACCOUNT_DATA));
+    subRouter.route(HttpMethod.POST, "/order/create").handler(routingContext -> this.handleCreateNewOrder(routingContext, BINANCE_CLIENT_CREATE_ORDER));
 
     router.mountSubRouter("/api", subRouter);
 
@@ -63,6 +67,24 @@ public class HttpServerVerticle extends AbstractVerticle {
         LOGGER.error("Http server start failed.");
         promise.fail(throwable);
       });
+  }
+
+  private void handleCreateNewOrder(RoutingContext routingContext, String address) {
+    vertx
+      .eventBus()
+      .<JsonObject>rxRequest(address, routingContext.getBodyAsJson())
+      .doOnError(throwable -> LOGGER.error("Could not create new order.", throwable))
+      .subscribe(message -> routingContext
+        .response()
+        .putHeader(CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE)
+        .end(message
+          .body()
+          .encode()), throwable -> routingContext
+        .response()
+        .putHeader(CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE)
+        .setStatusCode(500)
+        .setStatusMessage(throwable.getMessage())
+        .end(new JsonObject().put("error", throwable.getMessage()).encode()));
   }
 
   private void handleGetAccount(RoutingContext routingContext, String accountAddress) {

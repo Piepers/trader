@@ -4,6 +4,7 @@ import com.binance.api.client.BinanceApiAsyncRestClient;
 import com.binance.api.client.BinanceApiCallback;
 import com.binance.api.client.BinanceApiClientFactory;
 import com.binance.api.client.BinanceApiWebSocketClient;
+import com.binance.api.client.domain.account.NewOrder;
 import com.binance.api.client.domain.event.AggTradeEvent;
 import io.reactivex.rxjava3.core.Completable;
 import io.vertx.core.Context;
@@ -25,6 +26,7 @@ public class BinanceClient extends AbstractVerticle {
   public static final String BINANCE_CLIENT_SUBSCRIBE_ADDRESS = "binanceclient.subscribe";
   public static final String BINANCE_CLIENT_UNSUBSCRIBE_ADDRESS = "binanceclient.unsubscribe";
   public static final String BINANCE_CLIENT_GET_ACCOUNT_DATA = "binanceclient.getAccount";
+  public static final String BINANCE_CLIENT_CREATE_ORDER = "binanceclient.createOrder";
 
   BinanceApiWebSocketClient bwsClient;
   Closeable ws;
@@ -45,6 +47,10 @@ public class BinanceClient extends AbstractVerticle {
     vertx
       .eventBus()
       .<JsonObject>consumer(BINANCE_CLIENT_GET_ACCOUNT_DATA, this::handleGetAccountBalances);
+
+    vertx
+      .eventBus()
+      .<JsonObject>consumer(BINANCE_CLIENT_CREATE_ORDER, this::handleCreateOrder);
 
   }
 
@@ -113,7 +119,6 @@ public class BinanceClient extends AbstractVerticle {
    * @param message, the message this message handles. Wille reply in case ok otherwise fail.
    */
   private void handleGetAccountBalances(Message<JsonObject> message) {
-
     asyncRestClient.getAccount(new BinanceApiCallback<>() {
       @Override
       public void onResponse(com.binance.api.client.domain.account.Account account) {
@@ -126,6 +131,27 @@ public class BinanceClient extends AbstractVerticle {
           "Something went wrong while calling the Binance REST API: " + cause.getMessage());
       }
     });
+  }
+
+  private void handleCreateOrder(Message<JsonObject> jsonObjectMessage) {
+    Objects.requireNonNull(jsonObjectMessage.body());
+    BinanceOrderRequest bor = new BinanceOrderRequest(jsonObjectMessage.body());
+    if (bor.isTest()) {
+      NewOrder newOrder = bor.toNewOrder();
+      asyncRestClient.newOrderTest(newOrder, new BinanceApiCallback<Void>() {
+        @Override
+        public void onResponse(Void unused) {
+          jsonObjectMessage.reply(new JsonObject().put("result", "ok"));
+        }
+
+        @Override
+        public void onFailure(Throwable cause) {
+          jsonObjectMessage.fail(500, "Something went wrong while calling the Binance REST API: " + cause.getMessage());
+        }
+      });
+    } else {
+      jsonObjectMessage.fail(1, "Not implemented.");
+    }
   }
 
   @Override

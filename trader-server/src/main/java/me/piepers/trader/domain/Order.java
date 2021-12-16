@@ -18,7 +18,7 @@ public class Order implements Jsonable {
   private CoinPair pair;
   private Side side;
   private Double quantity;
-
+  private Double price;
   private TimeInForce timeInForce;
 
   public Order(JsonObject jsonObject) {
@@ -30,5 +30,7 @@ public class Order implements Jsonable {
       .nonNull(jsonObject.getString("timeInForce")) ?
       TimeInForce
         .resolve(jsonObject.getString("timeInForce")) : null;
+    this.quantity = jsonObject.getDouble("quantity");
+    this.price = jsonObject.getDouble("price");
   }
 }
