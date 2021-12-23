@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>me.piepers</groupId>
+    <artifactId>trader</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>trader-frontend</artifactId>
+
+  <name>Trader Admin UI</name>
+  <description>The administration front-end for the Trader application.</description>
+  <properties>
+    <stencil-output-dir>${project.basedir}/www/</stencil-output-dir>
+    <node.version>v16.13.1</node.version>
+    <yarn.version>v1.22.17</yarn.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${basedir}/node</directory>
+            </fileset>
+            <fileset>
+              <directory>${basedir}/www</directory>
+            </fileset>
+            <fileset>
+              <directory>${basedir}/node_modules</directory>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.12.0</version>
+        <configuration>
+          <nodeVersion>${node.version}</nodeVersion>
+          <yarnVersion>${yarn.version}</yarnVersion>
+<!--          <downloadRoot>${download.root}</downloadRoot>-->
+<!--          <nodeDownloadRoot>${node.download.root}</nodeDownloadRoot>-->
+<!--          <yarnDownloadRoot>${yarn.download.root}</yarnDownloadRoot>-->
+          <workingDirectory>${basedir}</workingDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>Install node and yarn locally to the project</id>
+            <goals>
+              <goal>install-node-and-yarn</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+
+<!--          <execution>-->
+<!--            <id>Set offline cache</id>-->
+<!--            <goals>-->
+<!--              <goal>-->
+<!--                yarn-->
+<!--              </goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <arguments>config set yarn-offline-mirror ${basedir}/npm-packages-offline-cache</arguments>-->
+<!--            </configuration>-->
+<!--            <phase>generate-resources</phase>-->
+<!--          </execution>-->
+
+<!--          <execution>-->
+<!--            <id>Set mirror pruning</id>-->
+<!--            <goals>-->
+<!--              <goal>-->
+<!--                yarn-->
+<!--              </goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <arguments>config set yarn-offline-mirror-pruning true</arguments>-->
+<!--            </configuration>-->
+<!--            <phase>generate-resources</phase>-->
+<!--          </execution>-->
+
+          <execution>
+            <id>yarn install</id>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <arguments>install</arguments>
+              <environmentVariables/>
+            </configuration>
+            <phase>generate-resources</phase>
+          </execution>
+
+          <execution>
+            <id>Build front-end</id>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <arguments>build</arguments>
+            </configuration>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>Copy frontend build to target</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}/www</outputDirectory>
+              <nonFilteredFileExtensions>
+                <!--This prevents the fonts and other assets from becoming corrupt -->
+                <nonFilteredFileExtension>ico</nonFilteredFileExtension>
+                <nonFilteredFileExtension>jpg</nonFilteredFileExtension>
+                <nonFilteredFileExtension>png</nonFilteredFileExtension>
+                <nonFilteredFileExtension>eot</nonFilteredFileExtension>
+                <nonFilteredFileExtension>svg</nonFilteredFileExtension>
+                <nonFilteredFileExtension>woff</nonFilteredFileExtension>
+                <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+                <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+              </nonFilteredFileExtensions>
+              <resources>
+                <resource>
+                  <directory>${basedir}/www</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
