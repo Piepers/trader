@@ -18,5 +18,11 @@
     "jest-cli": "^26.6.3",
     "puppeteer": "^10.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "chart.js": "^3.7.0",
+    "chartjs-chart-financial": "^0.1.1",
+    "materialize-css": "^1.0.0",
+    "moment": "^2.29.1"
+  }
 }
