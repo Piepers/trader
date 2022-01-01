@@ -52,6 +52,10 @@
       <artifactId>vertx-reactive-streams</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-auth-jwt</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.binance.api</groupId>
       <artifactId>binance-api-client</artifactId>
       <version>1.0.1</version>

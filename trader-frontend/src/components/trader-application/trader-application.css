@@ -1,0 +1,23 @@
+nav.navbar .brand-logo {
+  font-size: 18px;
+}
+
+nav.navbar {
+  padding: 0 20px;
+}
+
+main {
+  padding: 20px 10px;
+}
+
+header,
+main {
+  margin-left: 300px;
+}
+
+@media only screen and (max-width: 992px) {
+  header,
+  main {
+    margin-left: 0;
+  }
+}

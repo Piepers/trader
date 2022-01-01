@@ -1,7 +1,7 @@
-@import "materialize.min.css";
+@import "freeze-ui.min.css";
+@import "jsontree.min.css";
 @import "material-icons.css";
-@import "admin-materialize.min.css";
-@import "fullcalendar.min.css";
-@import "datatables.min.css";
-@import "jqvmap.css";
+@import "materialize.min.css";
 @import "roboto.css";
+@import "sweetalert2.min.css";
+@import "sortable-theme-minimal.css";

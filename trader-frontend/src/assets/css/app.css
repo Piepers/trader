@@ -1,0 +1,55 @@
+body {
+  font-family: Roboto, Helvetica, sans-serif;
+  background-color: #f4f4f4;
+  min-height: 100%;
+}
+
+.jstValue {
+  font-size: inherit;
+}
+
+table th.action {
+  width: 1px;
+}
+
+table td.action {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+table td.action button {
+  padding: 0 6px;
+}
+
+.toast-error {
+  background-color: #ed3d3d;
+}
+
+.toast-success {
+  background-color: #3dc763;
+}
+
+/**
+ * Scrollbar styling
+ */
+::-webkit-scrollbar {
+  background-color: #ffffff;
+  width: 8px
+}
+
+/* background of the scrollbar except button or resizer */
+::-webkit-scrollbar-track {
+  background-color: #ffffff;
+}
+
+/* scrollbar itself */
+::-webkit-scrollbar-thumb {
+  background-color: #babac0;
+}
+
+/* set button(top and bottom of the scrollbar) */
+::-webkit-scrollbar-button {
+  display: none;
+}

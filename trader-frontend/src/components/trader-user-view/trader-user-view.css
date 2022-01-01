@@ -1,0 +1,23 @@
+.sidenav .user-view .cemail {
+  display: block;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.sidenav .user-view .clogout {
+  display: block;
+  font-size: 14px;
+  line-height: 24px;
+  padding-bottom: 16px;
+  font-weight: 400
+}
+
+.sidenav .user-view .userimg{
+  display: block;
+  max-width:70px;
+  max-height:70px;
+  width: auto;
+  height: auto;
+  border-radius: 50%;
+}
