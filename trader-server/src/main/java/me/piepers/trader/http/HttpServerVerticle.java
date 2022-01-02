@@ -83,6 +83,7 @@ public class HttpServerVerticle extends AbstractVerticle {
       subRouter.route(HttpMethod.GET, "/account/bitvavo").handler(routingContext -> this.handleGetAccount(routingContext, BITVAVO_CLIENT_GET_ACCOUNT_ASSETS));
       subRouter.route(HttpMethod.GET, "/account/coinbase").handler(routingContext -> this.handleGetAccount(routingContext, COINBASE_CLIENT_GET_ACCOUNT_DATA));
       subRouter.route(HttpMethod.POST, "/order/create").handler(routingContext -> this.handleCreateNewOrder(routingContext, BINANCE_CLIENT_CREATE_ORDER));
+      subRouter.route(HttpMethod.GET, "/user/info").handler(routingContext -> this.handleGetUserInfo(routingContext));
 
       router.mountSubRouter("/api", subRouter);
 
@@ -98,6 +99,34 @@ public class HttpServerVerticle extends AbstractVerticle {
           LOGGER.error("Http server start failed.");
           promise.fail(throwable);
         });
+    }
+  }
+
+  private void handleGetUserInfo(RoutingContext routingContext) {
+    if (this.authenticationEnabled) {
+      this.getUserInfoFromBearer(routingContext)
+        .subscribe(user -> {
+            String username = user.principal().getString("username", "unknown");
+            String usernameUrl = "";
+            this.jsonResponse(routingContext, new JsonObject()
+              .put("username", username)
+              .put("thumb", usernameUrl));
+          },
+          throwable -> routingContext.fail(401));
+    } else {
+      // Just return an empty response if we're not authenticating.
+      this.jsonResponse(routingContext, new JsonObject());
+    }
+  }
+
+  private Single<User> getUserInfoFromBearer(RoutingContext routingContext) {
+    // Obtain the jwt token from the header
+    String bearer = this.getBearerFromHeader(routingContext);
+
+    if (StringUtils.isEmpty(bearer)) {
+      return Single.error(new IllegalStateException("Unable to find bearer token in the headers."));
+    } else {
+      return this.jwtAuth(bearer);
     }
   }
 
@@ -165,7 +194,8 @@ public class HttpServerVerticle extends AbstractVerticle {
         this.jwtAuth(bearer)
           .doOnSuccess(user -> LOGGER.trace("User is authenticated to proceed to {}", routingContext.request().uri()))
           .subscribe(user -> routingContext.next(),
-            throwable -> routingContext.fail(401));
+            throwable ->
+              routingContext.fail(401));
       }
     } else {
       routingContext.next();

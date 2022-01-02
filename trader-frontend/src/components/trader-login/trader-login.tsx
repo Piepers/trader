@@ -28,7 +28,7 @@ export class TraderLogin {
             <div class="card large">
               <div class="card-image">
                 <img src="../../assets/images/trader.jpg"></img>
-                <span class="card-title">Log in with your account</span>
+                <span class="card-title"></span>
               </div>
               <div class="card-content">
                 <div class="input-field">

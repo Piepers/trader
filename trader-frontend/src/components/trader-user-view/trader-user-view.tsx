@@ -14,7 +14,7 @@ export class TraderUserView {
   ANONYMOUS_USER: string = 'Anonymous user';
 
   componentDidLoad() {
-    getFromProtectedApi('/admin/user/info')
+    getFromProtectedApi('/user/info')
       .then(response => response.json())
       .then(data => this.parseData(data))
       .catch(() => this.parseData({
