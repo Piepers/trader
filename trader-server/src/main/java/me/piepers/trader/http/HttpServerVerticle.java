@@ -62,7 +62,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
       Router router = Router.router(vertx);
       router.route().handler(BodyHandler.create());
-      
+
       router.route().handler(CorsHandler.create("*")
         .allowedHeader("*")
         .allowedMethod(HttpMethod.GET)
@@ -177,7 +177,7 @@ public class HttpServerVerticle extends AbstractVerticle {
       .rxAuthenticate(new JsonObject()
         .put("jwt", bearer))
       .doOnError(throwable -> LOGGER.debug("Unable to authenticate user with bearer {}", bearer))
-      .doOnError(throwable -> throwable.printStackTrace());
+      .doOnError(Throwable::printStackTrace);
 
   }
 

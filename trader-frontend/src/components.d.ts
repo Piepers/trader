@@ -18,6 +18,8 @@ export namespace Components {
     }
     interface TraderDashboard {
     }
+    interface TraderHeader {
+    }
     interface TraderLogin {
     }
     interface TraderNavigation {
@@ -56,6 +58,12 @@ declare global {
         prototype: HTMLTraderDashboardElement;
         new (): HTMLTraderDashboardElement;
     };
+    interface HTMLTraderHeaderElement extends Components.TraderHeader, HTMLStencilElement {
+    }
+    var HTMLTraderHeaderElement: {
+        prototype: HTMLTraderHeaderElement;
+        new (): HTMLTraderHeaderElement;
+    };
     interface HTMLTraderLoginElement extends Components.TraderLogin, HTMLStencilElement {
     }
     var HTMLTraderLoginElement: {
@@ -80,6 +88,7 @@ declare global {
         "app-root": HTMLAppRootElement;
         "trader-application": HTMLTraderApplicationElement;
         "trader-dashboard": HTMLTraderDashboardElement;
+        "trader-header": HTMLTraderHeaderElement;
         "trader-login": HTMLTraderLoginElement;
         "trader-navigation": HTMLTraderNavigationElement;
         "trader-user-view": HTMLTraderUserViewElement;
@@ -97,6 +106,8 @@ declare namespace LocalJSX {
     }
     interface TraderDashboard {
     }
+    interface TraderHeader {
+    }
     interface TraderLogin {
         "onUserLoggedIn"?: (event: CustomEvent<any>) => void;
     }
@@ -110,6 +121,7 @@ declare namespace LocalJSX {
         "app-root": AppRoot;
         "trader-application": TraderApplication;
         "trader-dashboard": TraderDashboard;
+        "trader-header": TraderHeader;
         "trader-login": TraderLogin;
         "trader-navigation": TraderNavigation;
         "trader-user-view": TraderUserView;
@@ -124,6 +136,7 @@ declare module "@stencil/core" {
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
             "trader-application": LocalJSX.TraderApplication & JSXBase.HTMLAttributes<HTMLTraderApplicationElement>;
             "trader-dashboard": LocalJSX.TraderDashboard & JSXBase.HTMLAttributes<HTMLTraderDashboardElement>;
+            "trader-header": LocalJSX.TraderHeader & JSXBase.HTMLAttributes<HTMLTraderHeaderElement>;
             "trader-login": LocalJSX.TraderLogin & JSXBase.HTMLAttributes<HTMLTraderLoginElement>;
             "trader-navigation": LocalJSX.TraderNavigation & JSXBase.HTMLAttributes<HTMLTraderNavigationElement>;
             "trader-user-view": LocalJSX.TraderUserView & JSXBase.HTMLAttributes<HTMLTraderUserViewElement>;
