@@ -142,6 +142,7 @@ public class HttpServerVerticle extends AbstractVerticle {
           authProvider
             .authenticate(usernameAndPassword, result -> {
               if (result.succeeded()) {
+//                String token = jwtProvider.generateToken(result.result().principal(),
                 String token = jwtProvider.generateToken(result.result().principal(),
                   new JWTOptions()
                     .setAlgorithm("HS256")
@@ -205,7 +206,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   private Single<User> jwtAuth(String bearer) {
     return this.jwtProvider
       .rxAuthenticate(new JsonObject()
-        .put("jwt", bearer))
+        .put("token", bearer))
       .doOnError(throwable -> LOGGER.debug("Unable to authenticate user with bearer {}", bearer))
       .doOnError(Throwable::printStackTrace);
 
