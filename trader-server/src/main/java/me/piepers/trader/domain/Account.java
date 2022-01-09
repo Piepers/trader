@@ -23,6 +23,7 @@ public class Account implements Jsonable {
   private static final String NOTHING = "0.00000000";
   private static final String NOTHING_MORE = "0.0000000000000000";
   private static final String NOTHING_SMALLER = "0.00";
+  private static final String BITVAVO_NAUGHT = "0";
   private Exchange exchange;
   private boolean canTrade;
   private boolean canWithdraw;
@@ -77,6 +78,9 @@ public class Account implements Jsonable {
   }
 
   public static Account fromBitvavo(ArrayList<AssetBalance> abs) {
-    return new Account(Exchange.with("Bitvavo"), true, true, true, abs);
+    return new Account(Exchange.with("Bitvavo"), true, true, true, abs
+      .stream()
+      .filter(ab -> !ab.getFree().equals(BITVAVO_NAUGHT))
+      .collect(Collectors.toList()));
   }
 }
