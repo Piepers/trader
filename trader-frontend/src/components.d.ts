@@ -14,6 +14,15 @@ export namespace Components {
     }
     interface AppRoot {
     }
+    interface TraderAccount {
+    }
+    interface TraderAccountItem {
+        "account": any;
+    }
+    interface TraderAccountList {
+        "accountCount": any;
+        "accounts": any;
+    }
     interface TraderApplication {
     }
     interface TraderDashboard {
@@ -23,6 +32,8 @@ export namespace Components {
     interface TraderLogin {
     }
     interface TraderNavigation {
+    }
+    interface TraderSpinner {
     }
     interface TraderUserView {
     }
@@ -45,6 +56,24 @@ declare global {
     var HTMLAppRootElement: {
         prototype: HTMLAppRootElement;
         new (): HTMLAppRootElement;
+    };
+    interface HTMLTraderAccountElement extends Components.TraderAccount, HTMLStencilElement {
+    }
+    var HTMLTraderAccountElement: {
+        prototype: HTMLTraderAccountElement;
+        new (): HTMLTraderAccountElement;
+    };
+    interface HTMLTraderAccountItemElement extends Components.TraderAccountItem, HTMLStencilElement {
+    }
+    var HTMLTraderAccountItemElement: {
+        prototype: HTMLTraderAccountItemElement;
+        new (): HTMLTraderAccountItemElement;
+    };
+    interface HTMLTraderAccountListElement extends Components.TraderAccountList, HTMLStencilElement {
+    }
+    var HTMLTraderAccountListElement: {
+        prototype: HTMLTraderAccountListElement;
+        new (): HTMLTraderAccountListElement;
     };
     interface HTMLTraderApplicationElement extends Components.TraderApplication, HTMLStencilElement {
     }
@@ -76,6 +105,12 @@ declare global {
         prototype: HTMLTraderNavigationElement;
         new (): HTMLTraderNavigationElement;
     };
+    interface HTMLTraderSpinnerElement extends Components.TraderSpinner, HTMLStencilElement {
+    }
+    var HTMLTraderSpinnerElement: {
+        prototype: HTMLTraderSpinnerElement;
+        new (): HTMLTraderSpinnerElement;
+    };
     interface HTMLTraderUserViewElement extends Components.TraderUserView, HTMLStencilElement {
     }
     var HTMLTraderUserViewElement: {
@@ -86,11 +121,15 @@ declare global {
         "app-home": HTMLAppHomeElement;
         "app-profile": HTMLAppProfileElement;
         "app-root": HTMLAppRootElement;
+        "trader-account": HTMLTraderAccountElement;
+        "trader-account-item": HTMLTraderAccountItemElement;
+        "trader-account-list": HTMLTraderAccountListElement;
         "trader-application": HTMLTraderApplicationElement;
         "trader-dashboard": HTMLTraderDashboardElement;
         "trader-header": HTMLTraderHeaderElement;
         "trader-login": HTMLTraderLoginElement;
         "trader-navigation": HTMLTraderNavigationElement;
+        "trader-spinner": HTMLTraderSpinnerElement;
         "trader-user-view": HTMLTraderUserViewElement;
     }
 }
@@ -101,6 +140,15 @@ declare namespace LocalJSX {
         "match"?: MatchResults;
     }
     interface AppRoot {
+    }
+    interface TraderAccount {
+    }
+    interface TraderAccountItem {
+        "account"?: any;
+    }
+    interface TraderAccountList {
+        "accountCount"?: any;
+        "accounts"?: any;
     }
     interface TraderApplication {
     }
@@ -113,17 +161,23 @@ declare namespace LocalJSX {
     }
     interface TraderNavigation {
     }
+    interface TraderSpinner {
+    }
     interface TraderUserView {
     }
     interface IntrinsicElements {
         "app-home": AppHome;
         "app-profile": AppProfile;
         "app-root": AppRoot;
+        "trader-account": TraderAccount;
+        "trader-account-item": TraderAccountItem;
+        "trader-account-list": TraderAccountList;
         "trader-application": TraderApplication;
         "trader-dashboard": TraderDashboard;
         "trader-header": TraderHeader;
         "trader-login": TraderLogin;
         "trader-navigation": TraderNavigation;
+        "trader-spinner": TraderSpinner;
         "trader-user-view": TraderUserView;
     }
 }
@@ -134,11 +188,15 @@ declare module "@stencil/core" {
             "app-home": LocalJSX.AppHome & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
             "app-profile": LocalJSX.AppProfile & JSXBase.HTMLAttributes<HTMLAppProfileElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+            "trader-account": LocalJSX.TraderAccount & JSXBase.HTMLAttributes<HTMLTraderAccountElement>;
+            "trader-account-item": LocalJSX.TraderAccountItem & JSXBase.HTMLAttributes<HTMLTraderAccountItemElement>;
+            "trader-account-list": LocalJSX.TraderAccountList & JSXBase.HTMLAttributes<HTMLTraderAccountListElement>;
             "trader-application": LocalJSX.TraderApplication & JSXBase.HTMLAttributes<HTMLTraderApplicationElement>;
             "trader-dashboard": LocalJSX.TraderDashboard & JSXBase.HTMLAttributes<HTMLTraderDashboardElement>;
             "trader-header": LocalJSX.TraderHeader & JSXBase.HTMLAttributes<HTMLTraderHeaderElement>;
             "trader-login": LocalJSX.TraderLogin & JSXBase.HTMLAttributes<HTMLTraderLoginElement>;
             "trader-navigation": LocalJSX.TraderNavigation & JSXBase.HTMLAttributes<HTMLTraderNavigationElement>;
+            "trader-spinner": LocalJSX.TraderSpinner & JSXBase.HTMLAttributes<HTMLTraderSpinnerElement>;
             "trader-user-view": LocalJSX.TraderUserView & JSXBase.HTMLAttributes<HTMLTraderUserViewElement>;
         }
     }

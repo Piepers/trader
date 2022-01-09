@@ -18,12 +18,7 @@ export class TraderDashboard {
     return (
       <div>
         <div class="row">
-          <div class="col s6">
-            <span>Some dashboard content</span>
-          </div>
-        </div>
-        <div class="row">
-          <span>SOme other dashboard content</span>
+          <trader-account/>
         </div>
       </div>
     );

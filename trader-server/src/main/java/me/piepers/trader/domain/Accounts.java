@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -16,9 +17,11 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 public class Accounts implements Jsonable {
+  private Integer count;
   private List<Account> accounts;
 
   public Accounts(JsonObject jsonObject) {
+    this.count = jsonObject.getInteger("count");
     this.accounts = jsonObject
       .getJsonArray("accounts")
       .stream()
@@ -27,6 +30,8 @@ public class Accounts implements Jsonable {
   }
 
   public static final Accounts with(Account... account) {
-    return new Accounts(Arrays.stream(account).collect(Collectors.toList()));
+    List<Account> accounts = Arrays.stream(account).collect(Collectors.toList());
+    Integer count = Objects.nonNull(accounts) ? accounts.size() : 0;
+    return new Accounts(count, accounts);
   }
 }
