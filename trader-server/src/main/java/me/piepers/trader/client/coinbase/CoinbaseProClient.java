@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.rxjava3.core.AbstractVerticle;
 import io.vertx.rxjava3.ext.web.client.WebClient;
+import me.piepers.trader.client.ClientConfig;
 import me.piepers.trader.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +56,10 @@ public class CoinbaseProClient extends AbstractVerticle {
     JsonObject config = this.vertx.getOrCreateContext().config();
 
     JsonObject coinbasePublicConfig = config.getJsonObject("coinbase-pro-public-config");
-    JsonObject coinbaseNonPublicConfig = config.getJsonObject("coinbase-pro-api-client");
-    this.apiKey = coinbaseNonPublicConfig.getString("api-key", null);
-    this.secret = coinbaseNonPublicConfig.getString("secret", null);
-    this.passphrase = coinbaseNonPublicConfig.getString("passphrase", null);
+    ClientConfig coinbaseNonPublicConfig = new ClientConfig(config.getJsonObject("coinbase-pro-api-client"));
+    this.apiKey = coinbaseNonPublicConfig.getApikey();
+    this.secret = coinbaseNonPublicConfig.getSecret();
+    this.passphrase = coinbaseNonPublicConfig.getPassphrase();
     if (Objects.isNull(this.apiKey) || Objects.isNull(this.secret) || Objects.isNull(passphrase)) {
       startFuture.fail("Could not retrieve api key or secret while starting the Coinbase Pro API Client");
     } else {

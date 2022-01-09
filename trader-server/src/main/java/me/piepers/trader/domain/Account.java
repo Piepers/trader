@@ -6,7 +6,6 @@ import io.vertx.core.json.JsonObject;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +30,7 @@ public class Account implements Jsonable {
   private List<AssetBalance> assetBalances;
 
   public Account(JsonObject jsonObject) {
-    this.exchange = new Exchange(jsonObject);
+    this.exchange = new Exchange(jsonObject.getJsonObject("exchange"));
     this.canTrade = jsonObject.getBoolean("canTrade");
     this.canWithdraw = jsonObject.getBoolean("canWithdraw");
     this.canDeposit = jsonObject.getBoolean("canDeposit");
@@ -43,7 +42,6 @@ public class Account implements Jsonable {
   }
 
   public static Account with(com.binance.api.client.domain.account.Account account) {
-
     List<AssetBalance> assetBalances = Objects.nonNull(account.getBalances()) ? account
       .getBalances()
       .stream()

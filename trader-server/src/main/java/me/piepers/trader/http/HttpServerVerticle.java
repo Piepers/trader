@@ -1,5 +1,6 @@
 package me.piepers.trader.http;
 
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.Context;
 import io.vertx.core.Promise;
@@ -12,12 +13,15 @@ import io.vertx.ext.auth.PubSecKeyOptions;
 import io.vertx.ext.auth.authentication.AuthenticationProvider;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.rxjava3.core.AbstractVerticle;
+import io.vertx.rxjava3.core.eventbus.Message;
 import io.vertx.rxjava3.ext.auth.User;
 import io.vertx.rxjava3.ext.auth.jwt.JWTAuth;
 import io.vertx.rxjava3.ext.web.Router;
 import io.vertx.rxjava3.ext.web.RoutingContext;
 import io.vertx.rxjava3.ext.web.handler.BodyHandler;
 import io.vertx.rxjava3.ext.web.handler.CorsHandler;
+import me.piepers.trader.domain.Account;
+import me.piepers.trader.domain.Accounts;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +86,9 @@ public class HttpServerVerticle extends AbstractVerticle {
       subRouter.route(HttpMethod.GET, "/account/binance").handler(routingContext -> this.handleGetAccount(routingContext, BINANCE_CLIENT_GET_ACCOUNT_DATA));
       subRouter.route(HttpMethod.GET, "/account/bitvavo").handler(routingContext -> this.handleGetAccount(routingContext, BITVAVO_CLIENT_GET_ACCOUNT_ASSETS));
       subRouter.route(HttpMethod.GET, "/account/coinbase").handler(routingContext -> this.handleGetAccount(routingContext, COINBASE_CLIENT_GET_ACCOUNT_DATA));
+      subRouter.route(HttpMethod.GET, "/accounts").handler(this::handleGetAllAvailableAccounts);
       subRouter.route(HttpMethod.POST, "/order/create").handler(routingContext -> this.handleCreateNewOrder(routingContext, BINANCE_CLIENT_CREATE_ORDER));
-      subRouter.route(HttpMethod.GET, "/user/info").handler(routingContext -> this.handleGetUserInfo(routingContext));
+      subRouter.route(HttpMethod.GET, "/user/info").handler(this::handleGetUserInfo);
 
       router.mountSubRouter("/api", subRouter);
 
@@ -142,7 +147,6 @@ public class HttpServerVerticle extends AbstractVerticle {
           authProvider
             .authenticate(usernameAndPassword, result -> {
               if (result.succeeded()) {
-//                String token = jwtProvider.generateToken(result.result().principal(),
                 String token = jwtProvider.generateToken(result.result().principal(),
                   new JWTOptions()
                     .setAlgorithm("HS256")
@@ -256,6 +260,25 @@ public class HttpServerVerticle extends AbstractVerticle {
           .setStatusCode(500)
           .setStatusMessage(throwable.getMessage())
           .end(new JsonObject().put("error", throwable.getMessage()).encode()));
+  }
+
+  private void handleGetAllAvailableAccounts(RoutingContext routingContext) {
+    Single<Message<JsonObject>> bitvavoAccountResponse = vertx.eventBus().<JsonObject>rxRequest(BITVAVO_CLIENT_GET_ACCOUNT_ASSETS, new JsonObject());
+    Single<Message<JsonObject>> binanceAccountResponse = vertx.eventBus().<JsonObject>rxRequest(BINANCE_CLIENT_GET_ACCOUNT_DATA, new JsonObject());
+    Single<Message<JsonObject>> coinbaseAccountResponse = vertx.eventBus().<JsonObject>rxRequest(COINBASE_CLIENT_GET_ACCOUNT_DATA, new JsonObject());
+
+    Observable.zip(bitvavoAccountResponse.toObservable(),
+        binanceAccountResponse.toObservable(),
+        coinbaseAccountResponse.toObservable(),
+        (bitvavoResponse, binanceResponse, coinbaseResponse) ->
+          Accounts.with(new Account(bitvavoResponse.body()), new Account(binanceResponse.body()), new Account(coinbaseResponse.body())))
+      .subscribe(accounts -> routingContext.response().putHeader(CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE)
+        .end(accounts.toJson().encode()), throwable -> routingContext
+        .response()
+        .putHeader(CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE)
+        .setStatusCode(500)
+        .setStatusMessage(throwable.getMessage())
+        .end(new JsonObject().put("error", throwable.getMessage()).encode()));
   }
 
   private void handleUnSubscribeToWs(RoutingContext routingContext) {

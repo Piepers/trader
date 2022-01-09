@@ -9,6 +9,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava3.core.AbstractVerticle;
+import me.piepers.trader.client.ClientConfig;
 import me.piepers.trader.domain.Account;
 import me.piepers.trader.domain.AssetBalance;
 import org.json.JSONObject;
@@ -30,11 +31,11 @@ public class BitvavoClient extends AbstractVerticle {
   public void start(Promise<Void> startFuture) {
     JsonObject config = this.vertx.getOrCreateContext().config();
     JsonObject bitvavoPublicConfig = config.getJsonObject("bitvavo-public-config");
-    JsonObject bitvavoNonPublicConfig = config.getJsonObject("bitvavo-api-client");
+    ClientConfig bitvavoNonPublicConfig = new ClientConfig(config.getJsonObject("bitvavo-api-client"));
 
     this.bitvavo = new Bitvavo(new JSONObject("{" +
-      "APIKEY: '" + bitvavoNonPublicConfig.getString("apikey") + "', " +
-      "APISECRET: '" + bitvavoNonPublicConfig.getString("apisecret") + "', " +
+      "APIKEY: '" + bitvavoNonPublicConfig.getApikey() + "', " +
+      "APISECRET: '" + bitvavoNonPublicConfig.getSecret() + "', " +
       "RESTURL: '" + bitvavoPublicConfig.getString("resturl") + "'," +
       "WSURL: '" + bitvavoPublicConfig.getString("wsurl") + "'," +
       "ACCESSWINDOW:" + bitvavoPublicConfig.getInteger("accesswindow") + ", " +

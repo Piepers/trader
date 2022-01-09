@@ -13,6 +13,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava3.core.AbstractVerticle;
+import me.piepers.trader.client.ClientConfig;
 import me.piepers.trader.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,11 +61,11 @@ public class BinanceClient extends AbstractVerticle {
     JsonObject binancePublicConfig = config
       .getJsonObject("binance-public-config");
 
-    JsonObject binanceNonPublicConfig = config
-      .getJsonObject("binance-api-client");
+    ClientConfig binanceNonPublicConfig = new ClientConfig(config
+      .getJsonObject("binance-api-client"));
 
     BinanceApiClientFactory factory = BinanceApiClientFactory
-      .newInstance(binanceNonPublicConfig.getString("api-key"), binanceNonPublicConfig.getString("secret"));
+      .newInstance(binanceNonPublicConfig.getApikey(), binanceNonPublicConfig.getSecret());
 
     this.bwsClient = factory.newWebSocketClient();
 
