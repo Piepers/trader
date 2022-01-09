@@ -21,10 +21,12 @@ export class TraderAccountList {
 
   render() {
     return (
-      <div class="row">
+      <div>
         {this.accounts.map(account => {
           return (
-            <trader-account-item account={account}/>
+            <div class="row">
+              <trader-account-item account={account}/>
+            </div>
           );
         })}
       </div>
