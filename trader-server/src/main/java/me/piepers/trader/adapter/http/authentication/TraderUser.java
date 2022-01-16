@@ -1,4 +1,4 @@
-package me.piepers.trader.http.authentication;
+package me.piepers.trader.adapter.http.authentication;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;

@@ -1,4 +1,4 @@
-package me.piepers.trader.client.binance;
+package me.piepers.trader.adapter.exchange.client.binance;
 
 import com.binance.api.client.domain.OrderSide;
 import com.binance.api.client.domain.OrderType;

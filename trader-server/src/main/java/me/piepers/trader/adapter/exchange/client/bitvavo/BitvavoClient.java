@@ -1,4 +1,4 @@
-package me.piepers.trader.client.bitvavo;
+package me.piepers.trader.adapter.exchange.client.bitvavo;
 
 import com.bitvavo.api.Bitvavo;
 import io.reactivex.rxjava3.core.Observable;
@@ -9,7 +9,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava3.core.AbstractVerticle;
-import me.piepers.trader.client.ClientConfig;
+import me.piepers.trader.adapter.exchange.client.ClientConfig;
 import me.piepers.trader.domain.Account;
 import me.piepers.trader.domain.AssetBalance;
 import org.json.JSONObject;

@@ -1,4 +1,4 @@
-package me.piepers.trader.http;
+package me.piepers.trader.adapter.http;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import static me.piepers.trader.client.binance.BinanceClient.*;
-import static me.piepers.trader.client.bitvavo.BitvavoClient.BITVAVO_CLIENT_GET_ACCOUNT_ASSETS;
-import static me.piepers.trader.client.coinbase.CoinbaseProClient.COINBASE_CLIENT_GET_ACCOUNT_DATA;
+import static me.piepers.trader.adapter.exchange.client.binance.BinanceClient.*;
+import static me.piepers.trader.adapter.exchange.client.bitvavo.BitvavoClient.BITVAVO_CLIENT_GET_ACCOUNT_ASSETS;
+import static me.piepers.trader.adapter.exchange.client.coinbase.CoinbaseProClient.COINBASE_CLIENT_GET_ACCOUNT_DATA;
 
 /**
  * Primarily to enable a user interface but also offers the ability to react on certain webhooks from

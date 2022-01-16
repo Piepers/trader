@@ -1,4 +1,4 @@
-package me.piepers.trader.client.coinbase;
+package me.piepers.trader.adapter.exchange.client.coinbase;
 
 import io.vertx.core.Context;
 import io.vertx.core.Promise;
@@ -8,7 +8,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.rxjava3.core.AbstractVerticle;
 import io.vertx.rxjava3.ext.web.client.WebClient;
-import me.piepers.trader.client.ClientConfig;
+import me.piepers.trader.adapter.exchange.client.ClientConfig;
 import me.piepers.trader.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

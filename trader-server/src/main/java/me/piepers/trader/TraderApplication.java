@@ -8,10 +8,10 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava3.config.ConfigRetriever;
 import io.vertx.rxjava3.core.AbstractVerticle;
-import me.piepers.trader.client.binance.BinanceClient;
-import me.piepers.trader.client.bitvavo.BitvavoClient;
-import me.piepers.trader.client.coinbase.CoinbaseProClient;
-import me.piepers.trader.http.HttpServerVerticle;
+import me.piepers.trader.adapter.exchange.client.binance.BinanceClient;
+import me.piepers.trader.adapter.exchange.client.bitvavo.BitvavoClient;
+import me.piepers.trader.adapter.exchange.client.coinbase.CoinbaseProClient;
+import me.piepers.trader.adapter.http.HttpServerVerticle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

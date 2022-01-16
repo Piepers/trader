@@ -1,4 +1,4 @@
-package me.piepers.trader.client.binance;
+package me.piepers.trader.adapter.exchange.client.binance;
 
 import com.binance.api.client.BinanceApiAsyncRestClient;
 import com.binance.api.client.BinanceApiCallback;
@@ -13,7 +13,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava3.core.AbstractVerticle;
-import me.piepers.trader.client.ClientConfig;
+import me.piepers.trader.adapter.exchange.client.ClientConfig;
 import me.piepers.trader.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

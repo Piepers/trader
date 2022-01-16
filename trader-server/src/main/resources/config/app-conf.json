@@ -14,5 +14,11 @@
   },
   "coinbase-pro-public-config": {
     "host": "api.exchange.coinbase.com"
+  },
+  "coin-market-cap-public-config": {
+    "host": "pro-api.coinmarketcap.com",
+    "port": 443,
+    "base-url": "/v1",
+    "listings": "/listings/latest"
   }
 }

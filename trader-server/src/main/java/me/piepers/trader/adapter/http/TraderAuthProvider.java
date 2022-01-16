@@ -1,4 +1,4 @@
-package me.piepers.trader.http;
+package me.piepers.trader.adapter.http;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -6,7 +6,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.authentication.AuthenticationProvider;
-import me.piepers.trader.http.authentication.TraderUser;
+import me.piepers.trader.adapter.http.authentication.TraderUser;
 
 import java.util.Objects;
 

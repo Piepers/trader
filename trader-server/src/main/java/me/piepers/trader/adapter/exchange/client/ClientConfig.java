@@ -1,4 +1,4 @@
-package me.piepers.trader.client;
+package me.piepers.trader.adapter.exchange.client;
 
 import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;
